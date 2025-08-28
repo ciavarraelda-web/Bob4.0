@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import EthereumProvider from "@walletconnect/ethereum-provider";
 
-console.log("PokerGame.jsx loaded");
-
 const TOKEN_ADDRESS = "0xfa4C07636B53D868E514777B9d4005F1e9c6c40B";
 const GAME_CONTRACT = "0x6CB90Df0fCB1D29EdEDC988d94E969395d49f321";
 
@@ -34,8 +32,6 @@ const GAME_ABI = [
 ];
 
 function PokerGame() {
-  console.log("PokerGame component mounting");
-
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const [address, setAddress] = useState("");
@@ -45,12 +41,11 @@ function PokerGame() {
   const [lastResult, setLastResult] = useState(null);
 
   useEffect(() => {
-    console.log("useEffect fired", signer, address);
     if (signer && address) getBalance();
   }, [signer, address]);
 
+  // Connect MetaMask
   async function connectMetaMask() {
-    console.log("connectMetaMask called");
     try {
       if (window.ethereum) {
         const ethersProvider = new ethers.BrowserProvider(window.ethereum, "any");
@@ -60,19 +55,16 @@ function PokerGame() {
         setSigner(signer);
         setAddress(await signer.getAddress());
         setStatus("MetaMask connected!");
-        console.log("MetaMask connected:", await signer.getAddress());
       } else {
-        setStatus("MetaMask not found. Try WalletConnect.");
-        console.warn("MetaMask not found");
+        setStatus("MetaMask not found. Use WalletConnect.");
       }
     } catch (err) {
       setStatus("Connection error: " + err.message);
-      console.error("MetaMask error:", err);
     }
   }
 
+  // Connect WalletConnect v2
   async function connectWalletConnect() {
-    console.log("connectWalletConnect called");
     try {
       const walletConnectProvider = await EthereumProvider.init({
         projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID,
@@ -89,30 +81,26 @@ function PokerGame() {
       setSigner(signer);
       setAddress(await signer.getAddress());
       setStatus("WalletConnect v2 connected!");
-      console.log("WalletConnect connected:", await signer.getAddress());
     } catch (err) {
       setStatus("WalletConnect error: " + err.message);
-      console.error("WalletConnect error:", err);
     }
   }
 
+  // Get token balance
   async function getBalance() {
-    console.log("getBalance called");
     try {
       const contract = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, provider);
       const decimals = await contract.decimals();
       setTokenDecimals(decimals);
       const bal = await contract.balanceOf(address);
       setBalance(Number(ethers.formatUnits(bal, decimals)));
-      console.log("Balance fetched:", bal.toString());
     } catch (err) {
       setStatus("Error reading balance: " + err.message);
-      console.error("Balance error:", err);
     }
   }
 
+  // Play poker
   async function playPoker() {
-    console.log("playPoker called");
     if (!signer || !address) return setStatus("Connect your wallet!");
     if (balance < 100) return setStatus("Insufficient Bob4.0 balance!");
 
@@ -130,7 +118,6 @@ function PokerGame() {
       const receipt = await playTx.wait();
 
       setStatus("Game played! Check your wallet and history.");
-      console.log("Transaction receipt:", receipt);
 
       let won = null, playerCard = null, houseCard = null;
 
@@ -161,7 +148,6 @@ function PokerGame() {
       getBalance();
     } catch (err) {
       setStatus("Error: " + err.message);
-      console.error("Play poker error:", err);
     }
   }
 
@@ -190,3 +176,4 @@ function PokerGame() {
 }
 
 export default PokerGame;
+
