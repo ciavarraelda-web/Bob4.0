@@ -67,7 +67,7 @@ function PokerGame() {
   async function connectWalletConnect() {
     try {
       const walletConnectProvider = await EthereumProvider.init({
-        projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID,
+        projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID, // usa la variabile d'ambiente
         chains: [56],
         showQrModal: true,
         rpcMap: { 56: "https://bsc-dataseed.binance.org/" }
@@ -86,7 +86,6 @@ function PokerGame() {
     }
   }
 
-  // Get token balance
   async function getBalance() {
     try {
       const contract = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, provider);
@@ -99,7 +98,6 @@ function PokerGame() {
     }
   }
 
-  // Play poker
   async function playPoker() {
     if (!signer || !address) return setStatus("Connect your wallet!");
     if (balance < 100) return setStatus("Insufficient Bob4.0 balance!");
@@ -176,4 +174,3 @@ function PokerGame() {
 }
 
 export default PokerGame;
-
